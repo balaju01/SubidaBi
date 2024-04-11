@@ -8,7 +8,7 @@
 */
 
 // Set folder path
-define("FOLDER_PATH", "C:\xampp\htdocs\REPORTES_FONARTE");
+define("FOLDER_PATH", "C:xampp/htdocs/REPORTES_FONARTE");
 
 // Set default year and month with negative sign
 $col_year  = "-" . date("Y");
