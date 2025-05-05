@@ -86,10 +86,18 @@ foreach ($dir as $fileinfo) {
 // Procesar archivos en la carpeta
 echo "INFO (Línea 82): Procesando archivos en la carpeta...<br>";
 $dir = new DirectoryIterator(FOLDER_PATH);
+$col_month = intval(trim($col_month));
+$col_year = trim($col_year);
+$col_year = intval(str_replace("$col_year[1]", "", $col_year));
+var_dump($col_year);
+var_dump($col_month);
+
+
 foreach ($dir as $fileinfo) {
     if (!$fileinfo->isDot()) {
         ///// APPLE MUSIC
         if ((strpos($fileinfo->getFilename(), '_ZZ') !== false) && (strpos($fileinfo->getFilename(), 'S1_') !== false)) {
+            printf("<h4>APPLE MUSIC.</h4>");
             echo "INFO (Línea 88): Procesando archivo de Apple Music: " . $fileinfo->getFilename() . "<br>";
             // Establecer rutas de archivo nuevas y antiguas
             $old_file = $fileinfo->getPathname();
@@ -108,12 +116,14 @@ foreach ($dir as $fileinfo) {
                 if (strpos($row, "Row Count\t") !== false) break;
                 $new_content .= $row . "\t" . $col_year . "\t" . $col_month . "\n";
             }
+            //var_dump($new_content);
             file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio nuevo
             unlink($old_file); // Eliminar archivo antiguo
             printf(" hecho.<br>");
         }
         ///// ITUNES
         elseif (strpos($fileinfo->getFilename(), '_ZZ') !== false) {
+            printf("<h4>ITUNES.</h4>");
             echo "INFO (Línea 112): Procesando archivo de iTunes: " . $fileinfo->getFilename() . "<br>";
             // Establecer rutas de archivo nuevas y antiguas
             $old_file = $fileinfo->getPathname();
@@ -131,13 +141,16 @@ foreach ($dir as $fileinfo) {
                 if ($index == 0) continue;
                 if (strpos($row, "Total_Rows\t") !== false) break;
                 $new_content .= $row . "\t" . $col_year . "\t" . $col_month . "\n";
+                
             }
+            var_dump($new_content);
             file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio nuevo
             unlink($old_file); // Eliminar archivo antiguo
             printf(" hecho.<br>");
         }
         ///// ORCHARD
         elseif (strpos($fileinfo->getFilename(), 'fullreport_fonarte') !== false && $fileinfo->getExtension() == 'xls') {
+            printf("<h4>ORCHARD.</h4>");
             echo "INFO (Línea 136): Procesando archivo de Orchard: " . $fileinfo->getFilename() . "<br>";
             // Establecer rutas de archivo nuevas y antiguas
             $old_file = $fileinfo->getPathname();
@@ -169,6 +182,7 @@ foreach ($dir as $fileinfo) {
         }
         ///// TIPO DE CAMBIO
         elseif (strpos($fileinfo->getFilename(), 'financial_') !== false && $fileinfo->getExtension() == 'csv') {
+            printf("<h4>TIPO DE CAMBIO.</h4>");
             echo "INFO (Línea 176): Procesando archivo de tipo de cambio: " . $fileinfo->getFilename() . "<br>";
             // Establecer rutas de archivo nuevas y antiguas
             $old_file = $fileinfo->getPathname();
@@ -197,7 +211,144 @@ foreach ($dir as $fileinfo) {
             unlink($old_file); // Eliminar archivo antiguo
             printf(" hecho.<br>");
         }
+        ///// TMP_APPLEMUSIC
+        if (strpos($fileinfo->getFilename(), 'TMP_APPLEMUSIC') !== false) {
+            printf("<h4>Procesando TMP_APPLEMUSIC...</h4>");
+            $old_file = $fileinfo->getPathname();
+            $new_file = strstr($fileinfo->getPathname(), ".txt", true) . "-clean.txt";
+
+            if (file_exists($new_file)) {
+                printf("Archivo limpio ya existe.<br>");
+                continue;
+            }
+
+            $lines = file($old_file, FILE_IGNORE_NEW_LINES); // Leer archivo en array
+            $new_content = '';
+
+            foreach ($lines as $index => $row) {
+                if ($index == 0) continue; // Saltar encabezados
+
+                $columns = str_getcsv($row, "\t"); // Dividir columnas por tabulaciones
+
+                // Calcular NET_ROTALTY
+                $net_royalty_total = floatval($columns[5]); // Net Royalty Total
+                $total_royalty_bearing_plays = floatval($columns[3]); // Total Royalty Bearing Plays
+                $net_rotalty = ($total_royalty_bearing_plays > 0) ? $net_royalty_total / $total_royalty_bearing_plays : 0;
+
+                // Agregar ITEM_TYPE
+                $item_type = 1;
+
+                // Agregar columnas calculadas y ANIO/MES
+                $columns[] = $net_rotalty; // NET_ROTALTY
+                $columns[] = $item_type;  // ITEM_TYPE
+                $columns[] = $col_year;  // ANIO
+                $columns[] = $col_month; // MES
+
+                $new_content .= implode("\t", $columns) . "\n";
+            }
+
+            file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio
+            unlink($old_file); // Eliminar archivo original
+            printf("TMP_APPLEMUSIC procesado y guardado en '%s'.<br>", $new_file);
+        }
+
+        ///// TMP_FINANCIAL_REPORT
+        elseif (strpos($fileinfo->getFilename(), 'TMP_FINANCIAL_REPORT') !== false) {
+            printf("<h4>Procesando TMP_FINANCIAL_REPORT...</h4>");
+            $old_file = $fileinfo->getPathname();
+            $new_file = strstr($fileinfo->getPathname(), ".csv", true) . "-clean.txt";
+
+            if (file_exists($new_file)) {
+                printf("Archivo limpio ya existe.<br>");
+                continue;
+            }
+
+            $lines = file($old_file, FILE_IGNORE_NEW_LINES); // Leer archivo en array
+            $new_content = '';
+
+            foreach ($lines as $index => $row) {
+                if ($index == 0) continue; // Saltar encabezados
+
+                $columns = str_getcsv($row, ","); // Dividir columnas por comas
+
+                // Tratar País o región (Divisa)
+                $pais_region_divisa = $columns[0]; // País o región (Divisa)
+                $divisa = substr($pais_region_divisa, -4, 3); // Extraer abreviatura de la divisa
+
+                // Reemplazar el valor tratado en la columna
+                $columns[0] = $divisa;
+
+                // Agregar ANIO/MES
+                $columns[] = $col_year;  // ANIO
+                $columns[] = $col_month; // MES
+
+                $new_content .= implode("\t", $columns) . "\n";
+            }
+
+            file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio
+            unlink($old_file); // Eliminar archivo original
+            printf("TMP_FINANCIAL_REPORT procesado y guardado en '%s'.<br>", $new_file);
+        }
     }
+}
+
+// Procesar archivos según el mapeo de columnas
+$mapping_file = 'column_mapping.json';
+
+if (!file_exists($mapping_file)) {
+    die("ERROR: Archivo de configuración '$mapping_file' no encontrado.");
+}
+
+// Leer el archivo JSON
+$column_mapping = json_decode(file_get_contents($mapping_file), true);
+
+if (json_last_error() !== JSON_ERROR_NONE) {
+    die("ERROR: Error al parsear el archivo JSON: " . json_last_error_msg());
+}
+
+// Procesar cada archivo
+foreach ($column_mapping as $table => $mapping) {
+    $source_columns = $mapping['source_columns'];
+    $db_columns = $mapping['db_columns'];
+    $calculations = isset($mapping['calculations']) ? $mapping['calculations'] : [];
+
+    // Leer el archivo de origen
+    $source_file = "C:\\xampp\\htdocs\\SubidaBi\\REPORTES_FONARTE\\$table.txt";
+    if (!file_exists($source_file)) {
+        echo "WARNING: Archivo de origen '$source_file' no encontrado. Saltando...\n";
+        continue;
+    }
+
+    $lines = file($source_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $new_content = [];
+
+    // Reordenar las columnas según el mapeo y aplicar cálculos
+    foreach ($lines as $index => $line) {
+        if ($index == 0) continue; // Saltar encabezados
+
+        $row = str_getcsv($line, "\t");
+        $reordered_row = [];
+
+        foreach ($db_columns as $db_column) {
+            if (isset($calculations[$db_column])) {
+                // Evaluar la expresión de cálculo
+                $expression = $calculations[$db_column];
+                $value = eval("return $expression;");
+                $reordered_row[] = $value;
+            } else {
+                // Buscar el índice de la columna en el archivo de origen
+                $index = array_search($db_column, $source_columns);
+                $reordered_row[] = $index !== false ? $row[$index] : null;
+            }
+        }
+
+        $new_content[] = implode("\t", $reordered_row);
+    }
+
+    // Guardar el archivo reordenado
+    $output_file = str_replace(".txt", "-clean.txt", $source_file);
+    file_put_contents($output_file, implode("\n", $new_content));
+    echo "INFO: Archivo procesado y guardado en '$output_file'.\n";
 }
 
 // Función para extraer archivos ZIP
