@@ -1,0 +1,35 @@
+{
+  "$schema": "https://aka.ms/winget-packages.schema.2.0.json",
+  "PackageIdentifier": "SubidaBiDependencies",
+  "PackageVersion": "1.0.0",
+  "Description": "Dependencias necesarias para el proyecto SubidaBi",
+  "Dependencies": {
+    "WindowsFeatures": [],
+    "PackageDependencies": [
+      {
+        "PackageIdentifier": "Xampp.Xampp",
+        "MinimumVersion": "8.2.4" 
+      },
+      {
+        "PackageIdentifier": "PHP.PHP",
+        "MinimumVersion": "8.2.0" 
+      },
+      {
+        "PackageIdentifier": "Composer.Composer",
+        "MinimumVersion": "2.5.0" 
+      },
+      {
+        "PackageIdentifier": "Microsoft.VisualStudioCode",
+        "MinimumVersion": "1.80.0" 
+      },
+      {
+        "PackageIdentifier": "Microsoft.EdgeWebView2",
+        "MinimumVersion": "109.0.1518.78" 
+      },
+      {
+        "PackageIdentifier": "Microsoft.SQLServerCommandLineTools",
+        "MinimumVersion": "15.0.2000.5" 
+      }
+    ]
+  }
+}
