@@ -23,13 +23,13 @@ REN C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\*_ZZ*.txt TMP_ITUNES.txt;
 REN C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\financial*.txt TMP_FINANCIAL_REPORT.txt;
 
 :: CARGA REPORTE APPLEMUSIC
-bcp TMP_APPLEMUSIC in C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\TMP_APPLEMUSIC.txt -S fonarte2.database.windows.net -d Reporteador -U Dataguys2 -P Fonarte2018 -q -c -t \t -r 0x0A -C 65001;
+bcp TMP_APPLEMUSIC in C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\TMP_APPLEMUSIC-clean.txt -S fonarte2.database.windows.net -d Reporteador -U Dataguys2 -P Fonarte2018 -q -c -t \t -r 0x0A -C 65001;
 
 :: CARGA REPORTE ITUNES
-bcp TMP_ITUNES in C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\TMP_ITUNES.txt -S fonarte2.database.windows.net -d Reporteador -U Dataguys2 -P Fonarte2018 -q -c -t \t -r 0x0A -C 65001;
+bcp TMP_ITUNES in C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\TMP_ITUNES-clean.txt -S fonarte2.database.windows.net -d Reporteador -U Dataguys2 -P Fonarte2018 -q -c -t \t -r 0x0A -C 65001;
 
 :: CARGA REPORTE DIVISAS
-bcp TMP_FINANCIAL_REPORT in C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\TMP_FINANCIAL_REPORT.txt -S fonarte2.database.windows.net -d Reporteador -U Dataguys2 -P Fonarte2018 -q -c -t \t -r 0x0A -C 65001;
+bcp TMP_FINANCIAL_REPORT in C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\TMP_FINANCIAL_REPORT-clean.txt -S fonarte2.database.windows.net -d Reporteador -U Dataguys2 -P Fonarte2018 -q -c -t \t -r 0x0A -C 65001;
 
 :: CARGA REPORTE ORCHARD
 bcp TMP_ORCHARD in C:\xampp\htdocs\SubidaBi\REPORTES_FONARTE\TMP_ORCHARD.txt -S fonarte2.database.windows.net -d Reporteador -U Dataguys2 -P Fonarte2018 -q -c -t \t -r 0x0A -C 65001;

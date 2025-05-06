@@ -61,7 +61,7 @@ if (MODE === 'CLI') {
     processFiles();
 
     // Cargar datos a Azure
-    uploadToAzure();
+    //uploadToAzure();
 
     // Registrar logs
     logExecution($time_start, $output_str);

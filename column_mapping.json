@@ -1,25 +1,10 @@
 {
   "TMP_APPLEMUSIC": {
-    "source_columns": ["Storefront Name", "Apple Identifier", "Product", "Total  Royalty Bearing Plays", "", "Net Royalty Total", "Currency", "ISRC", "Content Title", "Artist", "", "Media Type", "Vendor Identifier", "Spatial Availability Indicator", "Label/Studio/Network", "Grid"],
-    "db_columns": ["STOREFRONT_NAME", "APPLE_IDENTIFIER", "MEMBERSHIP_TYPE", "QUANTITY", "NET_ROTALTY", "NET_ROYALTY_TOTAL", "CURRENCY", "ISRC", "ITEM_TITLE", "ITEM_ARTIST", "ITEM_TYPE", "MEDIA_TYPE", "VENDOR_IDENTIFIER", "OFFLINE_INDICATOR", "LABEL_STUDIO_NETWORK", "GRID", "ANIO", "MES"],
-    "calculations": {
-      "NET_ROTALTY": "columns[5] / columns[3] if columns[3] > 0 else 0",
-      "ITEM_TYPE": "1"
-    }
-  },
-  "TMP_ITUNES": {
-    "source_columns": ["Start Date","End Date","UPC","ISRC/ISBN","Vendor Identifier","Quantity","Partner Share","Extended Partner Share","Partner Share Currency","Sales or Return","Apple Identifier","Artist/Show/Developer/Author","Title","Label/Studio/Network/Developer/Publisher","Grid","Product Type Identifier","ISAN/Other Identifier","Country Of Sale","Pre-order Flag","Promo Code","Customer Price","Customer Currency"],
-    "db_columns": ["START_DATE","END_DATE","UPC","ISRC_ISBN","VENDOR_IDENTIFIER","QUANTITY","PARTNER_SHARE","EXTENDED_PARTNER_SHARE","PARTNER_SHARE_CURRENCY","SALES_OR_RETURN","APPLE_IDENTIFIER","ARTIST_SHOW_DEVELOPER_AUTHOR","TITLE","LABEL_STUDIO_NETWORK_DEVELOPER_PUBLISHER","GRID","PRODUCT_TYPE_IDENTIFIER","ISAN_OTHER_IDENTIFIER","COUNTRY_OF_SALE","PRE-ORDER_FLAG","PROMO_CODE","CUSTOMER_PRICE","CUSTOMER_CURRENCY","ANIO","MES"]
+    "source_columns": ["Storefront Name", "Apple Identifier", "Product", "Total  Royalty Bearing Plays", "Net Royalty", "Net Royalty Total", "Currency", "ISRC", "Content Title", "Artist", "Item Type", "Media Type", "Vendor Identifier", "Spatial Availability Indicator", "Label/Studio/Network", "Grid","Anio","Mes"],
+    "db_columns": ["STOREFRONT_NAME", "APPLE_IDENTIFIER", "MEMBERSHIP_TYPE", "QUANTITY", "NET_ROTALTY", "NET_ROYALTY_TOTAL", "CURRENCY", "ISRC", "ITEM_TITLE", "ITEM_ARTIST", "ITEM_TYPE", "MEDIA_TYPE", "VENDOR_IDENTIFIER", "OFFLINE_INDICATOR", "LABEL_STUDIO_NETWORK", "GRID", "ANIO", "MES"]
   },
   "TMP_FINANCIAL_REPORT": {
-    "source_columns": ["País o región (Divisa)", "Unidades vendidas", "Ingresado", "Subtotal antes<br>de impuestos", "Impuesto repercutido", "Ajustes", "Retención fiscal", "Total adeudado", "Tipo de cambio", "Ganancias", "Divisa de la cuenta bancaria"],
-    "db_columns": ["DIVISA", "UNIDADES_VENDIDAS", "SALDO", "INGRESADO", "SUBTOTAL_ANTES_IMPUESTOS", "IMPUESTO_REPERCUTIDO", "AJUSTES", "RETENCION_FISCAL", "TOTAL_ADEUDADO", "TIPO_DE_CAMBIO", "GANANCIAS", "DIVISA_CTA_BANCARIA", "ANIO", "MES"],
-    "calculations": {
-      "DIVISA": "columns[0][-4:-1]" 
-    }
-  },
-  "TMP_ORCHARD": {
-    "source_columns": ["Period","Activity Period","Retailer","Territory","Orchard UPC","Manufacturer's UPC","Project Code","Product Code","Imprint Label","Artist Name","Product Name","Track Name","Track Artist","ISRC","Volume","Track #","Trans Type","Trans Type Description","Unit Price","Discount","Actual Price","Quantity","Total","Adjusted Total","Split Rate","Label Share Net Receipts","Ringtone Publishing","Cloud Publishing","Publishing","Mech. Administrative Fee","Preferred Currency"],
-    "db_columns": ["PERIOD","ACTIVITY_PERIOD","RETAILER","TERRITORY","ORCHARD_UPC","MANUFACTURERS_UPC","PROJECT_CODE","PRODUCT_CODE","IMPRINT_LABEL","ARTIST_NAME","PRODUCT_NAME","TRACK_NAME","TRACK_ARTIST","ISRC","VOLUME","TRACK","TRANS_TYPE","TRANS_TYPE_DESCRIPTION","UNIT_PRICE","DISCOUNT","ACTUAL_PRICE","QUANTITY","TOTAL","ADJUSTED_TOTAL","SPLIT_RATE","LABEL_SHARE_NET_RECEIPTS","RINGTONE_PUBLISHING","CLOUD_PUBLISHING","PUBLISHING","MECH_ADMINISTRATIVE_FEE","PREFERRED_CURRENCY","ANIO","MES"]
+    "source_columns": ["Divisa", "Unidades vendidas", "Ingresado", "Subtotal antes<br>de impuestos", "Impuesto repercutido", "Ajustes", "Retención fiscal", "Total adeudado", "Tipo de cambio", "Ganancias", "Divisa de la cuenta bancaria","Anio","Mes"],
+    "db_columns": ["DIVISA", "UNIDADES_VENDIDAS", "SALDO", "INGRESADO", "SUBTOTAL_ANTES_IMPUESTOS", "IMPUESTO_REPERCUTIDO", "AJUSTES", "RETENCION_FISCAL", "TOTAL_ADEUDADO", "TIPO_DE_CAMBIO", "GANANCIAS", "DIVISA_CTA_BANCARIA", "ANIO", "MES"]
   }
 }

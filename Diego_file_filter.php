@@ -65,7 +65,7 @@ $dir = new DirectoryIterator(FOLDER_PATH);
 foreach ($dir as $fileinfo) {
 	echo "DEBUG (Línea 69): Inspeccionando \$fileinfo...<br>";
     //var_dump($fileinfo);
-	print($fileinfo->isDot() ? "Es un punto<br>" : "No es un punto<br>");
+	//print($fileinfo->isDot() ? "Es un punto<br>" : "No es un punto<br>");
     if (!$fileinfo->isDot()) {
         if (strpos($fileinfo->getFilename(), 'fullreport_fonarte') !== false && $fileinfo->getExtension() == 'xls') {
             echo "INFO (Línea 66): Archivo Orchard encontrado: " . $fileinfo->getFilename() . "<br>";
@@ -92,114 +92,126 @@ $col_year = intval(str_replace("$col_year[1]", "", $col_year));
 var_dump($col_year);
 var_dump($col_month);
 
-
 foreach ($dir as $fileinfo) {
     if (!$fileinfo->isDot()) {
-        ///// APPLE MUSIC
+        
         if ((strpos($fileinfo->getFilename(), '_ZZ') !== false) && (strpos($fileinfo->getFilename(), 'S1_') !== false)) {
-            printf("<h4>APPLE MUSIC.</h4>");
-            echo "INFO (Línea 88): Procesando archivo de Apple Music: " . $fileinfo->getFilename() . "<br>";
-            // Establecer rutas de archivo nuevas y antiguas
+            echo  "APPLE MUSIC <br>";
             $old_file = $fileinfo->getPathname();
-            $new_file = strstr($fileinfo->getPathname(), ".txt", true) . "-clean.txt";
-            // Verificar si el archivo ya existe
+            $new_file = FOLDER_PATH . "/TMP_APPLEMUSIC.txt"; // Guardar con el nombre de la tabla
+
             if (file_exists($new_file)) {
-                printf(" archivo ya existe.<br>");
                 continue;
             }
-            // Inicializar variables de bucle de archivo
-            $lines = file($old_file, FILE_IGNORE_NEW_LINES); // Leer archivo en array
+
+            $lines = file($old_file, FILE_IGNORE_NEW_LINES);
             $new_content = '';
-            // Recorrer cada fila y columna
+
             foreach ($lines as $index => $row) {
-                if ($index == 0 || $index == 1 || $index == 2 || $index == 3) continue;
+                if ($index == 0 || $index == 1 || $index == 2 ) {
+                    //echo $index . " - " . $row . "<br>";
+                    continue;
+                }
+                   
+                if ($index == 3) {
+                    
+                    $row = $row. "\tItem Type\tAnio\tMes\tNet Royalty\n"; 
+                    //echo $index . " - " . $row . "<br>";
+                    $new_content .= $row;
+                }
+                
                 if (strpos($row, "Row Count\t") !== false) break;
-                $new_content .= $row . "\t" . $col_year . "\t" . $col_month . "\n";
+
+                if ($index > 3 ) $new_content .= $row . "\t1\t" . $col_year . "\t" . $col_month . "\n";
             }
-            //var_dump($new_content);
-            file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio nuevo
-            unlink($old_file); // Eliminar archivo antiguo
-            printf(" hecho.<br>");
+
+            file_put_contents($new_file, rtrim($new_content));
+            unlink($old_file);
         }
         ///// ITUNES
         elseif (strpos($fileinfo->getFilename(), '_ZZ') !== false) {
-            printf("<h4>ITUNES.</h4>");
-            echo "INFO (Línea 112): Procesando archivo de iTunes: " . $fileinfo->getFilename() . "<br>";
-            // Establecer rutas de archivo nuevas y antiguas
             $old_file = $fileinfo->getPathname();
-            $new_file = strstr($fileinfo->getPathname(), ".txt", true) . "-clean.txt";
-            // Verificar si el archivo ya existe
+            $new_file = FOLDER_PATH . "/TMP_ITUNES.txt"; // Guardar con el nombre de la tabla
+
             if (file_exists($new_file)) {
-                printf(" archivo ya existe.<br>");
                 continue;
             }
-            // Inicializar variables de bucle de archivo
-            $lines = file($old_file, FILE_IGNORE_NEW_LINES); // Leer archivo en array
+
+            $lines = file($old_file, FILE_IGNORE_NEW_LINES);
             $new_content = '';
-            // Recorrer cada fila y columna
+
             foreach ($lines as $index => $row) {
-                if ($index == 0) continue;
+                if ($index == 0){continue;}
                 if (strpos($row, "Total_Rows\t") !== false) break;
                 $new_content .= $row . "\t" . $col_year . "\t" . $col_month . "\n";
-                
             }
-            var_dump($new_content);
-            file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio nuevo
-            unlink($old_file); // Eliminar archivo antiguo
-            printf(" hecho.<br>");
+
+            file_put_contents($new_file, rtrim($new_content));
+            unlink($old_file);
         }
         ///// ORCHARD
-        elseif (strpos($fileinfo->getFilename(), 'fullreport_fonarte') !== false && $fileinfo->getExtension() == 'xls') {
-            printf("<h4>ORCHARD.</h4>");
-            echo "INFO (Línea 136): Procesando archivo de Orchard: " . $fileinfo->getFilename() . "<br>";
-            // Establecer rutas de archivo nuevas y antiguas
+        elseif(strpos($fileinfo->getFilename(), 'fullreport_fonarte') !== false && $fileinfo->getExtension() == 'xls') {
+            printf("Getting [Orchard] ready...");
+            // Set new and old file paths
             $old_file = $fileinfo->getPathname();
-            $new_file = strstr($fileinfo->getPathname(), ".xls", true) . "-clean.txt";
-            // Verificar si el archivo ya existe
-            if (file_exists($new_file)) {
-                printf(" archivo ya existe.<br>");
+            $new_file = FOLDER_PATH . "/TMP_ORCHARD.txt"; // Guardar con el nombre de la tabla
+            // Check if file already exists
+            if(file_exists($new_file)) {
+                printf(" file already exists.\n");
                 continue;
             }
-            // Inicializar variables de bucle de archivo
-            $fp = fopen($old_file, 'r'); // Abrir archivo en modo lectura
+            // Initialize file looping variables
+            $fp = fopen($old_file, 'r'); // Open xls
+            $line = fgets($fp); // Skip first row (headers)
             $new_content = '';
-
-            while (($row = fgets($fp)) !== false) {
-                $row = str_replace('"', '', $row); // Eliminar comillas ["]
-                $temp_arr = explode(',', $row);
-
-                if (empty($temp_arr[0])) break; // Detener si la fila está vacía
-                array_pop($temp_arr); // Eliminar última columna si es necesario
-                $temp_arr[] = $col_year; // Agregar año
-                $temp_arr[] = $col_month; // Agregar mes
-                $new_content .= implode("\t", $temp_arr) . "\n";
+            // Loop through rows
+            
+            while (!feof($fp)){
+                $line = fgets($fp); // Get row
+                $data = str_getcsv($line, "\t"); // Get columns separated by a tab
+                $temp_arr = array();
+                // Loop through columns and filter data
+                foreach($data as $index => $row) {
+                    $str = mb_convert_encoding($row, 'UTF-8', 'UCS-2'); // Convert to UTF8
+                    
+                    $str = str_replace('"?','',$str); // Remove ["]
+                    
+                    $str = str_replace('"','',$str); // Remove ["] 
+                    $temp_arr[] = mb_convert_encoding($str, 'UTF-8', 'auto'); // Convertir a UTF-8 automáticamente
+                    
+                    
+                }
+                if(sizeof($temp_arr) > 2){
+                    $temp_arr[] = $col_year; // Add year
+                    $temp_arr[] = $col_month; // Add month
+                    // Append new row to final string
+                    $new_content .= implode("\t",$temp_arr) . "\n";
+                }
+                
             }
-
-            fclose($fp); // Cerrar archivo
-            file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio nuevo
-            unlink($old_file); // Eliminar archivo antiguo
-            printf(" hecho.<br>");
+            // Write the new content into the txt file
+            $new_content = mb_convert_encoding($new_content, 'UTF-8', 'auto');
+            file_put_contents($new_file, $new_content);
+            fclose($fp); // Close files
+            unlink($old_file); // Delete old file
+            printf(" done.\n");
         }
-        ///// TIPO DE CAMBIO
+       ///// TIPO DE CAMBIO
         elseif (strpos($fileinfo->getFilename(), 'financial_') !== false && $fileinfo->getExtension() == 'csv') {
-            printf("<h4>TIPO DE CAMBIO.</h4>");
-            echo "INFO (Línea 176): Procesando archivo de tipo de cambio: " . $fileinfo->getFilename() . "<br>";
-            // Establecer rutas de archivo nuevas y antiguas
             $old_file = $fileinfo->getPathname();
-            $new_file = strstr($fileinfo->getPathname(), ".csv", true) . "-clean.txt";
-            // Verificar si el archivo ya existe
+            $new_file = FOLDER_PATH . "/TMP_FINANCIAL_REPORT.txt"; // Guardar con el nombre de la tabla
+
             if (file_exists($new_file)) {
-                printf(" archivo ya existe.<br>");
                 continue;
             }
-            // Inicializar variables de bucle de archivo
-            $lines = file($old_file, FILE_IGNORE_NEW_LINES); // Leer archivo en array
+
+            $lines = file($old_file, FILE_IGNORE_NEW_LINES);
             $new_content = '';
             $temp_arr = array();
-            // Recorrer cada fila y columna
+
             foreach ($lines as $index => $row) {
                 if ($index == 0 || $index == 1 || $index == 2) continue;
-                $str = str_replace('"', '', $row); // Eliminar comillas ["]
+                $str = str_replace('"', '', $row);
                 $temp_arr = explode(',', $str);
                 if ($temp_arr[0] == '') break;
                 array_pop($temp_arr);
@@ -207,87 +219,9 @@ foreach ($dir as $fileinfo) {
                 $temp_arr[] = $col_month;
                 $new_content .= implode("\t", $temp_arr) . "\n";
             }
-            file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio nuevo
-            unlink($old_file); // Eliminar archivo antiguo
-            printf(" hecho.<br>");
-        }
-        ///// TMP_APPLEMUSIC
-        if (strpos($fileinfo->getFilename(), 'TMP_APPLEMUSIC') !== false) {
-            printf("<h4>Procesando TMP_APPLEMUSIC...</h4>");
-            $old_file = $fileinfo->getPathname();
-            $new_file = strstr($fileinfo->getPathname(), ".txt", true) . "-clean.txt";
 
-            if (file_exists($new_file)) {
-                printf("Archivo limpio ya existe.<br>");
-                continue;
-            }
-
-            $lines = file($old_file, FILE_IGNORE_NEW_LINES); // Leer archivo en array
-            $new_content = '';
-
-            foreach ($lines as $index => $row) {
-                if ($index == 0) continue; // Saltar encabezados
-
-                $columns = str_getcsv($row, "\t"); // Dividir columnas por tabulaciones
-
-                // Calcular NET_ROTALTY
-                $net_royalty_total = floatval($columns[5]); // Net Royalty Total
-                $total_royalty_bearing_plays = floatval($columns[3]); // Total Royalty Bearing Plays
-                $net_rotalty = ($total_royalty_bearing_plays > 0) ? $net_royalty_total / $total_royalty_bearing_plays : 0;
-
-                // Agregar ITEM_TYPE
-                $item_type = 1;
-
-                // Agregar columnas calculadas y ANIO/MES
-                $columns[] = $net_rotalty; // NET_ROTALTY
-                $columns[] = $item_type;  // ITEM_TYPE
-                $columns[] = $col_year;  // ANIO
-                $columns[] = $col_month; // MES
-
-                $new_content .= implode("\t", $columns) . "\n";
-            }
-
-            file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio
-            unlink($old_file); // Eliminar archivo original
-            printf("TMP_APPLEMUSIC procesado y guardado en '%s'.<br>", $new_file);
-        }
-
-        ///// TMP_FINANCIAL_REPORT
-        elseif (strpos($fileinfo->getFilename(), 'TMP_FINANCIAL_REPORT') !== false) {
-            printf("<h4>Procesando TMP_FINANCIAL_REPORT...</h4>");
-            $old_file = $fileinfo->getPathname();
-            $new_file = strstr($fileinfo->getPathname(), ".csv", true) . "-clean.txt";
-
-            if (file_exists($new_file)) {
-                printf("Archivo limpio ya existe.<br>");
-                continue;
-            }
-
-            $lines = file($old_file, FILE_IGNORE_NEW_LINES); // Leer archivo en array
-            $new_content = '';
-
-            foreach ($lines as $index => $row) {
-                if ($index == 0) continue; // Saltar encabezados
-
-                $columns = str_getcsv($row, ","); // Dividir columnas por comas
-
-                // Tratar País o región (Divisa)
-                $pais_region_divisa = $columns[0]; // País o región (Divisa)
-                $divisa = substr($pais_region_divisa, -4, 3); // Extraer abreviatura de la divisa
-
-                // Reemplazar el valor tratado en la columna
-                $columns[0] = $divisa;
-
-                // Agregar ANIO/MES
-                $columns[] = $col_year;  // ANIO
-                $columns[] = $col_month; // MES
-
-                $new_content .= implode("\t", $columns) . "\n";
-            }
-
-            file_put_contents($new_file, rtrim($new_content)); // Guardar archivo limpio
-            unlink($old_file); // Eliminar archivo original
-            printf("TMP_FINANCIAL_REPORT procesado y guardado en '%s'.<br>", $new_file);
+            file_put_contents($new_file, rtrim($new_content));
+            unlink($old_file);
         }
     }
 }
@@ -305,7 +239,7 @@ $column_mapping = json_decode(file_get_contents($mapping_file), true);
 if (json_last_error() !== JSON_ERROR_NONE) {
     die("ERROR: Error al parsear el archivo JSON: " . json_last_error_msg());
 }
-
+/*
 // Procesar cada archivo
 foreach ($column_mapping as $table => $mapping) {
     $source_columns = $mapping['source_columns'];
@@ -350,7 +284,7 @@ foreach ($column_mapping as $table => $mapping) {
     file_put_contents($output_file, implode("\n", $new_content));
     echo "INFO: Archivo procesado y guardado en '$output_file'.\n";
 }
-
+*/
 // Función para extraer archivos ZIP
 function extractZipFile($file, $path) {
     echo "INFO (Línea 209): Extrayendo archivo ZIP: $file<br>";
